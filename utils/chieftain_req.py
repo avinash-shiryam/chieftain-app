@@ -35,7 +35,6 @@ def answer(**kwargs):
             }
         }
     output_body = requests.post(url=URL, data = json.dumps(body))
-    print(output_body.json())
 
     return output_body.json()
 
@@ -44,5 +43,31 @@ def answer(**kwargs):
 def authorize(**kwargs):
     URL = "http://127.0.0.1:8000/authorize"
 
+    auth_token = kwargs.get("auth_token")
+
+    body = {
+        "auth_token" : auth_token,
+        "permissions" : ["User:*"],
+        "roles" : ["string"],
+        "attributes" : {}
+    }
+
+    output_body = requests.post(url=URL, data = json.dumps(body))
+
+    try:
+        if output_body["is_authorized"] == "true":
+            return 0
+    except:
+        return "Authentication failed"
+
 def logout(**kwargs):
+
     URL = "http://127.0.0.1:8000/logout"
+    
+    auth_token = kwargs.get("auth_token")
+
+    body ={
+        "auth_token" : auth_token
+    }
+
+    output_body = requests.post(url=URL, data = json.dumps(body))
