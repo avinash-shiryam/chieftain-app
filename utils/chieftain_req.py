@@ -1,3 +1,4 @@
+import streamlit as st
 import requests
 import json
 import re
@@ -38,27 +39,22 @@ def answer(**kwargs):
 
     return output_body.json()
 
-
-
 def authorize(**kwargs):
     URL = "http://127.0.0.1:8000/authorize"
 
-    auth_token = kwargs.get("auth_token")
+    auth_token = st.session_state['auth_token']
+
+    HEADERS = {"auth_token": auth_token}
 
     body = {
-        "auth_token" : auth_token,
         "permissions" : ["User:*"],
         "roles" : ["string"],
         "attributes" : {}
     }
 
-    output_body = requests.post(url=URL, data = json.dumps(body))
+    output_body = requests.post(url=URL, data = json.dumps(body), header=HEADERS)
 
-    try:
-        if output_body["is_authorized"] == "true":
-            return 0
-    except:
-        return "Authentication failed"
+    return output_body.json()
 
 def logout(**kwargs):
 

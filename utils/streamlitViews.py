@@ -1,6 +1,8 @@
 import streamlit as st
 from utils.LoginClass import LoginClass
 
+appLogin = LoginClass()
+
 # Session state initializer
 
 def information_state():
@@ -29,27 +31,34 @@ class streamlitViews():
     def information_stage(self):
 
         with self.placeholder.container():
-            st.text_input("Enter your email id or phone number")
+            email_ophone = st.text_input("Enter your email id or phone number")
             submit_button = st.button("Submit",key = "information_submit", on_click=information_state)
 
+            appLogin.email_ophone = email_ophone
 
             if submit_button or st.session_state['information']:
-                self.placeholder.empty()
-                self.authorization_stage()
+                if appLogin.authenticate():
+                    self.placeholder.empty()
+                    self.authorization_stage()
 
     def authorization_stage(self):
 
 
         with self.placeholder.container():
-            st.text_input("Enter OTP")
-            st.text_input("Enter challenge id ")
+            otp = st.text_input("Enter OTP")
+            challenge_id = st.text_input("Enter challenge id ")
             submit_button = st.button("Submit OTP", key = "authorization submit", on_click=authorization_state)
-
+            
+            appLogin.otp = otp
+            appLogin.challenge_id = challenge_id
 
             if submit_button or st.session_state['authorization']:
-                self.placeholder.empty()
-                self.final_stage()
-    
+                if appLogin.answer():
+                    appLogin.auth_token = st.session_state['auth_token']
+                    if appLogin.authorize():
+                        self.placeholder.empty()
+                        self.final_stage()
+                    
     def final_stage(self):
 
         with self.placeholder.container():

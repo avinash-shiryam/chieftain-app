@@ -1,4 +1,5 @@
 import requests
+import streamlit as st
 from utils import chieftain_req
 
 
@@ -13,13 +14,25 @@ class LoginClass():
     def authenticate(self):
         
         response = chieftain_req.authenticate(email_ophone=self.email_ophone)
-        print(response)
+
+        if "challenge_id" in response.keys():
+            print(response)
+            return response
+        else:
+            self.authenticate()
 
     def answer(self):
         
         response = chieftain_req.answer(email_ophone=self.email_ophone,
                                         otp=self.otp,
                                         challenge_id=self.challenge_id)
+        
+        if "auth_token" in response.keys():
+            print(response)
+            st.session_state['auth_token'] = response.get('auth_token')
+            return response
+        else:
+            self.answer()
         
         print(response)
 
@@ -28,11 +41,13 @@ class LoginClass():
         response = chieftain_req.authorize(auth_token=self.auth_token)
         print(response)
 
+        if "is_authorised" in response.keys():
+            print(response)
+            return response
+        else:
+            self.authorize()
+
     def logout(self):
         
         response = chieftain_req.authorize(auth_token=self.auth_token)
         print(response)
-
-loginInstance = LoginClass(email_ophone="avinash.reddy@shiryam.com",otp=217642,challenge_id=667)
-
-loginInstance.answer()
